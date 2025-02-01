@@ -98,8 +98,76 @@ function saveForm() {
 
     // Save back to localStorage
     localStorage.setItem("forms", JSON.stringify(forms));
+    loadFormSelector();
+    renderFormsList();
     currentFields = [];
     editFormId = '';
     formTitleInput.value = '';
     renderPreview();
 }
+
+
+// Function to render list of saved forms
+function renderFormsList() {
+    const formsContainer = document.getElementById("formsList");
+    if (!formsContainer) return;
+    formsContainer.innerHTML = "";
+    const savedForms: FormDataType[] = JSON.parse(localStorage.getItem("forms") || "[]");
+    if (savedForms.length === 0) {
+        formsContainer.innerHTML = "<p>No forms available.</p>";
+        return;
+    }
+
+    savedForms.forEach((form) => {
+        const formItem = document.createElement("li");
+        formItem.className = "form-item";
+        formItem.innerHTML = `
+            <span>${form.title}</span>
+            <button class='saved-form-btn' onclick="viewForm('${form.id}')">View</button>
+            <button class='saved-form-btn' onclick="editForm('${form.id}')">Edit</button>
+            <button class='saved-form-btn' onclick="deleteForm('${form.id}')">Delete</button>
+        `;
+        formsContainer.appendChild(formItem);
+    });
+}
+
+// Function to delete a form
+function deleteForm(id: string) {
+    forms = forms.filter(f => f.id !== id);
+    localStorage.setItem("forms", JSON.stringify(forms));
+    renderFormsList();
+    loadFormSelector();
+    location.reload();
+}
+
+// Function to edit a form
+function editForm(id: string) {
+    const form = forms.find(f => f.id === id);
+    if (!form) return;
+    editFormId = id;
+    formTitleInput.value = form.title;
+    currentFields = form.fields;
+    renderPreview();
+}
+
+// Function to populate the form dropdown
+function loadFormSelector() {
+    const formSelector = document.getElementById("formSelector") as HTMLSelectElement;
+    formSelector.innerHTML = `<option value="">-- Select a Form --</option>`; // Reset options
+    const savedForms: FormDataType[] = JSON.parse(localStorage.getItem("forms") || "[]");
+    savedForms.forEach((form) => {
+        const option = document.createElement("option");
+        option.value = form.id;
+        option.textContent = form.title;
+        formSelector.appendChild(option);
+    });
+}
+
+// Load forms when the page is ready
+document.addEventListener("DOMContentLoaded", () => {
+    loadFormSelector();
+    renderFormsList();
+});
+
+renderFormsList();
+renderPreview();
