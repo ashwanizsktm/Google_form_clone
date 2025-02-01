@@ -66,3 +66,40 @@ function renderPreview() {
         formPreview.appendChild(div);
     });
 }
+
+
+// Function to save form
+function saveForm() {
+    if (!formTitleInput.value) {
+        alert("Please enter a form title.");
+        return;
+    }
+    // Retrieve existing forms list
+    const existingIndex = forms.findIndex(f => f.id === editFormId);
+
+    if (existingIndex !== -1) {
+        // If form exists, update it
+        forms[existingIndex] = {
+            id: editFormId,
+            title: formTitleInput.value,
+            fields: currentFields
+        };
+        localStorage.removeItem(`responses_${editFormId}`)
+        window.location.reload()
+    } else {
+        // If form does not exist, add new one
+        const newForm: FormDataType = {
+            id: Math.random().toString(36).substr(2, 9),
+            title: formTitleInput.value,
+            fields: currentFields
+        };
+        forms.push(newForm);
+    }
+
+    // Save back to localStorage
+    localStorage.setItem("forms", JSON.stringify(forms));
+    currentFields = [];
+    editFormId = '';
+    formTitleInput.value = '';
+    renderPreview();
+}
