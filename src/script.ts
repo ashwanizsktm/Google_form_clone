@@ -163,6 +163,34 @@ function loadFormSelector() {
     });
 }
 
+// Function to view a form
+function viewForm(id: string) {
+    const form = forms.find(f => f.id === id);
+    if (!form) return;
+
+    let formHTML = `<div class="form-wrapper">`;
+    formHTML += `<h2>${form.title}</h2>`;
+    form.fields.forEach(field => {
+        formHTML += `<p><strong>${field.label}</strong></p>`;
+        if (field.type === "text") {
+            formHTML += `<input type="text" class="form-wrapper-text" 
+            id="${field.id}" name="${field.id}"><br>`;
+        } else {
+            field.options?.forEach(option => {
+                formHTML += `<label>
+                                <input type="${field.type}" name="${field.id}" value="${option}"> ${option}
+                            </label><br>`;
+            });
+        }
+    });
+
+    // Add submit button with event listener
+    formHTML += `<button class="back-btn" onclick="goBack()">Back</button>`;
+    formHTML += `<button class="submit-btn" onclick="submitResponse('${id}')">Submit</button>`;
+    formHTML += `</div>`;
+    document.body.innerHTML = formHTML;
+}
+
 // Load forms when the page is ready
 document.addEventListener("DOMContentLoaded", () => {
     loadFormSelector();
