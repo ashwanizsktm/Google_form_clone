@@ -242,6 +242,49 @@ function submitResponse(id: string) {
 }
 
 
+function goBack() {
+    location.reload(); // Reload the page to go back to the main view
+}
+
+// Function to view stored responses
+function viewResponses(): void {
+    const formSelector = document.getElementById("formSelector") as HTMLSelectElement;
+    const formId = formSelector.value;
+    if (!formId) {
+        alert("Please select a form!");
+        return;
+    }
+    const responseKey = `responses_${formId}`;
+    const responses: FormResponse[] = JSON.parse(localStorage.getItem(responseKey) || "[]");
+    const FormDataTyperr = JSON.parse(localStorage.getItem(`forms`) || "{}");
+    const selectedFormData = FormDataTyperr.filter((form: FormDataType) => formId === form.id)[0];
+    if (!selectedFormData.fields || responses.length === 0) {
+        alert("No responses found for this form! please fill the form fields to view the response");
+        return;
+    }
+
+    let tableHtml = "<table border='1'><tr>";
+    tableHtml += selectedFormData.fields.map((f: FormField) => `<th>${f.label}</th>`).join("");
+    tableHtml += "</tr>";
+
+    responses.forEach((response: any) => {
+        tableHtml += "<tr>";
+        tableHtml += selectedFormData.fields.map((f: FormField) => `<td>${Array.isArray(response[f.id]) ? response[f.id].join(", ") : response[f.id]}</td>`).join("");
+        tableHtml += "</tr>";
+    });
+    tableHtml += "</table>";
+    const responseContainer = document.getElementById("responsesContainer");
+    if (responseContainer) {
+        responseContainer.innerHTML = tableHtml;
+    }
+}
+
+// Attach event listener to the view responses button
+const viewResponsesButton = document.getElementById("viewResponses");
+if (viewResponsesButton) {
+    viewResponsesButton.addEventListener("click", viewResponses);
+}
+
 // Load forms when the page is ready
 document.addEventListener("DOMContentLoaded", () => {
     loadFormSelector();
