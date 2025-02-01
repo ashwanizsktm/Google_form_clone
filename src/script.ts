@@ -36,4 +36,33 @@ function addField(type: "text" | "radio" | "checkbox") {
         }
     }
     currentFields.push(newField);
+    renderPreview();
+}
+
+// Function to render form preview
+function renderPreview() {
+    formPreview.innerHTML = "";
+    currentFields.forEach(field => {
+        const div = document.createElement("div");
+        div.classList.add("field");
+        div.innerHTML = `<label>${field.label}</label>`;
+
+        if (field.type === "text") {
+            div.innerHTML += `<input type="text" class="preview-input-text" disabled>`;
+        } else if (field.type === "radio" || field.type === "checkbox") {
+            field.options?.forEach(option => {
+                div.innerHTML += `<label><input type="${field.type}" name="${field.id}" disabled>${option}</label>`;
+            });
+        }
+        // Delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "X";
+        deleteBtn.classList.add('delete-preview-btn')
+        deleteBtn.onclick = () => {
+            currentFields = currentFields.filter(f => f.id !== field.id);
+            renderPreview();
+        };
+        div.appendChild(deleteBtn);
+        formPreview.appendChild(div);
+    });
 }
