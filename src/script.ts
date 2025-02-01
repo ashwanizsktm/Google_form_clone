@@ -191,6 +191,57 @@ function viewForm(id: string) {
     document.body.innerHTML = formHTML;
 }
 
+
+// Function to submit form responses
+function submitResponse(id: string) {
+    const form = forms.find(f => f.id === id);
+    if (!form) {
+        alert("Form not found!");
+        return;
+    }
+    let userResponse: Record<string, any> = {};
+    let isValid = true;
+    form.fields.forEach(field => {
+        if (field.type === "text") {
+            const inputElement = document.getElementById(field.id) as HTMLInputElement;
+            if (!inputElement || inputElement.value.trim() === "") {
+                isValid = false;
+            } else {
+                userResponse[field.id] = inputElement.value.trim();
+            }
+        } else if (field.type === "radio") {
+            const selectedOption = document.querySelector(`input[name="${field.id}"]:checked`) as HTMLInputElement;
+            if (!selectedOption) {
+                isValid = false;
+            } else {
+                userResponse[field.id] = selectedOption.value;
+            }
+        } else if (field.type === "checkbox") {
+            const checkboxes = document.querySelectorAll(`input[name="${field.id}"]:checked`);
+            if (checkboxes.length === 0) {
+                isValid = false;
+            } else {
+                userResponse[field.id] = Array.from(checkboxes).map(cb => (cb as HTMLInputElement).value);
+            }
+        }
+    });
+
+    if (!isValid) {
+        alert("Please fill in all required fields.");
+        return;
+    }
+
+    // Retrieve previous responses
+    const responseKey = `responses_${id}`;
+    let responses: FormResponse[] = JSON.parse(localStorage.getItem(responseKey) || "[]");
+    responses.push(userResponse);
+    // Store updated responses
+    localStorage.setItem(responseKey, JSON.stringify(responses));
+    console.log("Stored responses:", JSON.parse(localStorage.getItem(responseKey) || "[]"));
+    alert("Response submitted successfully, Go back to view your response.");
+}
+
+
 // Load forms when the page is ready
 document.addEventListener("DOMContentLoaded", () => {
     loadFormSelector();
